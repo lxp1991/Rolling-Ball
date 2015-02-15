@@ -13,12 +13,16 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
+using namespace std;
 
 #define XOFF          50
 #define YOFF          50
 #define WINDOW_WIDTH  600
 #define WINDOW_HEIGHT 600
 #define MAXLINE 20
+#define MAXSPEED 400
+
 
 void display(void);
 void myinit(void);
@@ -26,10 +30,11 @@ void draw_circle(int x, int y, int r);
 void draw_arc(int x, int y, int r, int xd, int yd);
 /* Function to handle file input; modification may be needed */
 void file_in(void);
+void idle(void);
 int x, y, r;
 int option;	
 int rows;
-int Speed = 30;
+int Speed;
 int windowWidth = 0;
 
 int data[MAXLINE][MAXLINE];
@@ -40,7 +45,8 @@ The main function
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
-	errno_t err;
+	file_in();
+/*	errno_t err;
 	FILE *stream;
 	int maxRadius = 0;//If we read arguements from the txt file, we shall store the max radius.
 	int maxXYvalue = 0;//store the Max X value or Y value from the txt file, so that we can accommodate all points.
@@ -81,18 +87,19 @@ int main(int argc, char **argv)
 			printf("%d ", data[i][j]);
 		printf("\n");
 	}
-	
-	printf("There 3 options for this program.\n");
-	printf("Enter 1 to draw a circle (The center and radius are given by you.)\n");
-	printf("Enter 2 to draw serverl circles (Arguements are given by a txt file)\n");
-	printf("Enter 3 to draw growing circles\n");
-	printf("Please enter the option index:\n");
+*/	
+	cout << "There 3 options for this program.\n";
+	cout << "Enter 1 to draw a circle (The center and radius are given by you.)\n";
+	cout << "Enter 2 to draw serverl circles (Arguements are given by a txt file)\n";
+	cout << "Enter 3 to draw growing circles\n";
+	cout << "Please enter the option index:\n";
 
-	scanf_s("%d", &option);
+	cin >> option;
+	
 	if (option == 1)
 	{
 		glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);//If the option 1 is chosen, we use the default window size.
-		printf("Please enter x, y, r\n");
+		cout << "Please enter x, y, r\n";
 		scanf_s("%d %d %d", &x, &y, &r);
 	}
 	if (option == 2)
@@ -109,14 +116,14 @@ int main(int argc, char **argv)
 
 	/* Use both double buffering and Z buffer */
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-
+	glutIdleFunc(idle);       // Register our idle() function
 	glutInitWindowPosition(XOFF, YOFF);
 //	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutCreateWindow("CS6533 Assignment 1");
 	glutDisplayFunc(display);
 
 	/* Function call to handle file input here */
-	file_in();
+//	file_in();
 
 	myinit();
 	glutMainLoop();
@@ -127,20 +134,22 @@ file_in(): file input function. Modify here.
 ------------*/
 void file_in(void)
 {
-/*	errno_t err;
+	errno_t err;
 	FILE *stream;
 	int maxRadius = 0;//If we read arguements from the txt file, we shall store the max radius.
 	int maxXYvalue = 0;//store the Max X value or Y value from the txt file, so that we can accommodate all points.
-	char buf[1]; // Store the first row of the circle file.
+	char *buf; // Store the first row of the circle file.
 	int scalingFactor = 3;
 	if ((err = fopen_s(&stream, "circles.txt", "r")) != 0)
 		printf("The file 'circles.txt' was not opened\n");
 	else
 		printf("The file 'circles.txt' was opened\n");
 
+	buf = (char *)malloc(sizeof(char *));
 	fgets(buf, 10, stream);
 
 	rows = atoi(buf);//Number of circles in the txt file.
+	buf = NULL;
 
 	for (int i = 0; i < rows; i++)
 	{
@@ -167,7 +176,7 @@ void file_in(void)
 		for (int j = 0; j < 3; j++)
 			printf("%d ", data[i][j]);
 		printf("\n");
-	}*/
+	}
 }
 
 
@@ -284,7 +293,7 @@ void idle(void)
 {
 	Speed--;  // smaller number gives a slower but smoother animation
 
-	if (Speed <= 1) Speed = 30;
+	if (Speed <= 1) Speed = MAXSPEED;
 
 	display();
 //	glutPostRedisplay(); // or call display()
