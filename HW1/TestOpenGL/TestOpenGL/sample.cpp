@@ -45,6 +45,8 @@ The main function
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
+
+//read from the text file.
 	file_in();
 /*	errno_t err;
 	FILE *stream;
@@ -98,21 +100,15 @@ int main(int argc, char **argv)
 	
 	if (option == 1)
 	{
-		glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);//If the option 1 is chosen, we use the default window size.
+
 		cout << "Please enter x, y, r\n";
-		scanf_s("%d %d %d", &x, &y, &r);
-	}
-	if (option == 2)
-	{
-		//If the option 2 is chosen, we adjust the window to accommodate all points.
-		glutInitWindowSize(windowWidth, windowWidth);	
-	}
-	if (option == 3)
-	{
-		glutInitWindowSize(windowWidth, windowWidth);
-		
+		cin >> x;
+		cin >> y;
+		cin >> r;
+
 	}
 
+	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	/* Use both double buffering and Z buffer */
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -122,8 +118,7 @@ int main(int argc, char **argv)
 	glutCreateWindow("CS6533 Assignment 1");
 	glutDisplayFunc(display);
 
-	/* Function call to handle file input here */
-//	file_in();
+
 
 	myinit();
 	glutMainLoop();
@@ -138,8 +133,13 @@ void file_in(void)
 	FILE *stream;
 	int maxRadius = 0;//If we read arguements from the txt file, we shall store the max radius.
 	int maxXYvalue = 0;//store the Max X value or Y value from the txt file, so that we can accommodate all points.
+	int maxX = 0;
+	int maxY = 0;
+	int maxCoord;
 	char *buf; // Store the first row of the circle file.
-	int scalingFactor = 3;
+	float scalingFactor;
+
+	//read data from the circles.txt file.
 	if ((err = fopen_s(&stream, "circles.txt", "r")) != 0)
 		printf("The file 'circles.txt' was not opened\n");
 	else
@@ -156,25 +156,48 @@ void file_in(void)
 		for (int j = 0; j < 3; j++)
 		{
 			fscanf_s(stream, "%d", &data[i][j]);
-			if (j == 0 || j == 1)
+
+/*			if (j == 0 || j == 1)
 			{
 				data[i][j] /= scalingFactor;
 				if (maxXYvalue < abs(data[i][j])) maxXYvalue = abs(data[i][j]);
 			}
 			if (j == 2)
 				data[i][j] /= scalingFactor;
-			if (maxRadius < data[i][j]) maxRadius = data[i][j];
+			if (maxRadius < data[i][j]) maxRadius = data[i][j];*/
 
 		}
 	}
-	windowWidth = (maxRadius + maxXYvalue) * 2;
-	printf("%d\n", windowWidth);
 	fclose(stream);
+
 	for (int i = 0; i < rows; i++)
 	{
-
 		for (int j = 0; j < 3; j++)
+		{
+			if (j == 0)
+				if (maxX < (data[i][0] + data[i][2]) || maxX < abs(data[i][0] - data[i][2])) maxX = max(data[i][0] + data[i][2], abs(data[i][0] - data[i][2]));
+			if (j == 1)
+				if (maxY < (data[i][1] + data[i][2]) || maxY < abs(data[i][1] - data[i][2])) maxY = max(data[i][1] + data[i][2], abs(data[i][1] - data[i][2]));
+		}
+	}
+	cout << "Max X:" << maxX << endl;
+	cout << "Max Y:" << maxY << endl;
+	maxCoord = max(maxX, maxY);
+	cout << "MaxCoord" << maxCoord << endl;
+	scalingFactor = (float)maxCoord / (float)(WINDOW_WIDTH / 2);
+
+	cout <<"What the fuck?" << scalingFactor << endl; 
+
+
+
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			if (j == 2) data[i][j] /= scalingFactor;
 			printf("%d ", data[i][j]);
+		}
+			
 		printf("\n");
 	}
 }
@@ -200,8 +223,8 @@ void display(void)
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				if (j == 0) x = data[i][j] + windowWidth / 2;
-				if (j == 1) y = data[i][j] + windowWidth / 2;
+				if (j == 0) x = data[i][j] + WINDOW_WIDTH / 2;
+				if (j == 1) y = data[i][j] + WINDOW_WIDTH / 2;
 				if (j == 2) r = data[i][j] ;
 
 			}
@@ -214,8 +237,8 @@ void display(void)
 		{
 			for (int j = 0; j < 3; j++)
 			{
-				if (j == 0) x = data[i][j] + windowWidth / 2;
-				if (j == 1) y = data[i][j] + windowWidth / 2;
+				if (j == 0) x = data[i][j] + WINDOW_WIDTH / 2;
+				if (j == 1) y = data[i][j] + WINDOW_WIDTH / 2;
 				if (j == 2)	r = data[i][j] / Speed;
 			}
 			draw_circle(x, y, r);
@@ -257,18 +280,21 @@ void draw_circle(int x, int y, int r)
 	int xd = 0;
 	int yd = r;
 
-	float d = 5/4 - r;
+//	float d = 5/4 - r;
+	int l = 5 - 4 * r;//l = 4*d.
 	while (xd <= yd)
 	{
 		draw_arc(x, y, r, xd, yd);
-		if (d < 0)
+		if (l < 0)
 		{
-			d += xd * 2 + 3;
+			//d += xd * 2 + 3;
+			l += xd * 8 + 12;
 			xd++;
 		}
 		else
 		{
-			d += 2 * (xd - yd) + 5;
+			//d += 2 * (xd - yd) + 5;
+			l += 8 * (xd - yd) + 20;
 			yd--;
 			xd++;
 		}
@@ -296,5 +322,5 @@ void idle(void)
 	if (Speed <= 1) Speed = MAXSPEED;
 
 	display();
-//	glutPostRedisplay(); // or call display()
+
 }
