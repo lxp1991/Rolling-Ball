@@ -21,7 +21,7 @@ using namespace std;
 #define WINDOW_WIDTH  600
 #define WINDOW_HEIGHT 600
 #define MAXLINE 20
-#define MAXSPEED 400
+
 
 
 void display(void);
@@ -31,11 +31,16 @@ void draw_arc(int x, int y, int r, int xd, int yd);
 /* Function to handle file input; modification may be needed */
 void file_in(void);
 void idle(void);
+void chooseOption(void);
+
 int x, y, r;
+
 int option;	
 int rows;
-int Speed;
-int windowWidth = 0;
+
+float K = 10000;
+float frame = 1;
+
 
 int data[MAXLINE][MAXLINE];
 
@@ -48,73 +53,16 @@ int main(int argc, char **argv)
 
 //read from the text file.
 	file_in();
-/*	errno_t err;
-	FILE *stream;
-	int maxRadius = 0;//If we read arguements from the txt file, we shall store the max radius.
-	int maxXYvalue = 0;//store the Max X value or Y value from the txt file, so that we can accommodate all points.
-	char buf[1]; // Store the first row of the circle file.
-	int scalingFactor = 3;
-	if ((err = fopen_s(&stream, "circles.txt", "r")) != 0)
-		printf("The file 'circles.txt' was not opened\n");
-	else
-		printf("The file 'circles.txt' was opened\n");
 
-	fgets(buf, 10, stream);
 
-	rows = atoi(buf);//Number of circles in the txt file.
-
-	for (int i = 0; i < rows; i++)
-	{
-		for (int j = 0; j < 3; j++)
-		{
-			fscanf_s(stream, "%d", &data[i][j]);
-			if (j == 0 || j == 1) 
-			{
-				data[i][j] /= scalingFactor;
-				if (maxXYvalue < abs(data[i][j])) maxXYvalue = abs(data[i][j]);
-			}
-			if (j == 2)
-				data[i][j] /= scalingFactor;
-				if (maxRadius < data[i][j]) maxRadius = data[i][j];
-
-		}
-	}
-	windowWidth = (maxRadius + maxXYvalue) * 2;
-	printf("%d\n", windowWidth);
-	fclose(stream);
-	for (int i = 0; i < rows; i++)
-	{
-		
-		for (int j = 0; j < 3; j++)
-			printf("%d ", data[i][j]);
-		printf("\n");
-	}
-*/	
-	cout << "There 3 options for this program.\n";
-	cout << "Enter 1 to draw a circle (The center and radius are given by you.)\n";
-	cout << "Enter 2 to draw serverl circles (Arguements are given by a txt file)\n";
-	cout << "Enter 3 to draw growing circles\n";
-	cout << "Please enter the option index:\n";
-
-	cin >> option;
-	
-	if (option == 1)
-	{
-
-		cout << "Please enter x, y, r\n";
-		cin >> x;
-		cin >> y;
-		cin >> r;
-
-	}
+	chooseOption();
 
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-
 	/* Use both double buffering and Z buffer */
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 	glutIdleFunc(idle);       // Register our idle() function
 	glutInitWindowPosition(XOFF, YOFF);
-//	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+
 	glutCreateWindow("CS6533 Assignment 1");
 	glutDisplayFunc(display);
 
@@ -124,6 +72,27 @@ int main(int argc, char **argv)
 	glutMainLoop();
 }
 
+/*---------------------------------------------------------------------
+chooseOption(): This function is called once for _every_ frame.
+---------------------------------------------------------------------*/
+void chooseOption(void)
+{
+	cout << "There 3 options for this program.\n";
+	cout << "Enter 1 to draw a circle (The center and radius are given by you.)\n";
+	cout << "Enter 2 to draw serverl circles (Arguements are given by a txt file)\n";
+	cout << "Enter 3 to draw growing circles\n";
+	cout << "Please enter the option index:\n";
+	cin >> option;
+
+	if (option == 1)
+	{
+		cout << "Please enter x, y, r\n";
+		cin >> x;
+		cin >> y;
+		cin >> r;
+	}
+}
+
 /*----------
 file_in(): file input function. Modify here.
 ------------*/
@@ -131,12 +100,13 @@ void file_in(void)
 {
 	errno_t err;
 	FILE *stream;
-	int maxRadius = 0;//If we read arguements from the txt file, we shall store the max radius.
-	int maxXYvalue = 0;//store the Max X value or Y value from the txt file, so that we can accommodate all points.
-	int maxX = 0;
-	int maxY = 0;
-	int maxCoord;
+
+	int maxX = 0;//store the maximum X value of the circles can reach
+	int maxY = 0;//store the maximum Y value of the circles can reach
+	int maxCoord;//Max value of maxX and maxY
 	char *buf; // Store the first row of the circle file.
+
+	//Since the window may not be large enough to hold all circles, we have to multiply all circles by a uniform scaling factor 
 	float scalingFactor;
 
 	//read data from the circles.txt file.
@@ -151,25 +121,16 @@ void file_in(void)
 	rows = atoi(buf);//Number of circles in the txt file.
 	buf = NULL;
 
+	//Read x, y and radius and store them into data[][]
 	for (int i = 0; i < rows; i++)
-	{
 		for (int j = 0; j < 3; j++)
-		{
 			fscanf_s(stream, "%d", &data[i][j]);
-
-/*			if (j == 0 || j == 1)
-			{
-				data[i][j] /= scalingFactor;
-				if (maxXYvalue < abs(data[i][j])) maxXYvalue = abs(data[i][j]);
-			}
-			if (j == 2)
-				data[i][j] /= scalingFactor;
-			if (maxRadius < data[i][j]) maxRadius = data[i][j];*/
-
-		}
-	}
+		
+	//close the link between the file
 	fclose(stream);
 
+
+	//calculate the maxX and maxY value 
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -183,10 +144,10 @@ void file_in(void)
 	cout << "Max X:" << maxX << endl;
 	cout << "Max Y:" << maxY << endl;
 	maxCoord = max(maxX, maxY);
-	cout << "MaxCoord" << maxCoord << endl;
+	cout << "MaxCoord:" << maxCoord << endl;
 	scalingFactor = (float)maxCoord / (float)(WINDOW_WIDTH / 2);
 
-	cout <<"What the fuck?" << scalingFactor << endl; 
+	cout <<"Scaling factor" << scalingFactor << endl; 
 
 
 
@@ -194,11 +155,10 @@ void file_in(void)
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			if (j == 2) data[i][j] /= scalingFactor;
+			data[i][j] /= scalingFactor;
 			printf("%d ", data[i][j]);
-		}
-			
-		printf("\n");
+		}			
+		cout << endl;
 	}
 }
 
@@ -216,6 +176,12 @@ void display(void)
 
 	glBegin(GL_POINTS);
 
+/*---------------------------------------------------------------------
+There are three modes for this program. Option 1 is to draw one single 
+circle, the x, y and radius are given by user. Option 2 is to draw se-
+veral circle from the given text file. Option 3 is to draw the aniamt-
+ion of these circles in option 2.
+---------------------------------------------------------------------*/
 	if (option == 1) draw_circle(x, y, r);
 	if (option == 2) 
 	{
@@ -223,10 +189,10 @@ void display(void)
 		{
 			for (int j = 0; j < 3; j++)
 			{
+				//Change from OpenGL coordinate System to a World coordinate System
 				if (j == 0) x = data[i][j] + WINDOW_WIDTH / 2;
 				if (j == 1) y = data[i][j] + WINDOW_WIDTH / 2;
-				if (j == 2) r = data[i][j] ;
-
+				if (j == 2) r = data[i][j];
 			}
 			draw_circle(x, y, r);
 		}
@@ -239,15 +205,13 @@ void display(void)
 			{
 				if (j == 0) x = data[i][j] + WINDOW_WIDTH / 2;
 				if (j == 1) y = data[i][j] + WINDOW_WIDTH / 2;
-				if (j == 2)	r = data[i][j] / Speed;
+				if (j == 2)	r = data[i][j] * (frame / K);
+//				if (r != 0)	cout << r << endl;
 			}
 			draw_circle(x, y, r);
 		}
 	}
 
-
-
-//	glVertex2i(300, 0);               /* draw a vertex here */
 	glEnd();
 
 	glFlush();                            /* render graphics */
@@ -281,7 +245,7 @@ void draw_circle(int x, int y, int r)
 	int yd = r;
 
 //	float d = 5/4 - r;
-	int l = 5 - 4 * r;//l = 4*d.
+	int l = 5 - 4 * r;//l = 4*d. To avoid the floating point.
 	while (xd <= yd)
 	{
 		draw_arc(x, y, r, xd, yd);
@@ -317,10 +281,8 @@ void myinit()
 
 void idle(void)
 {
-	Speed--;  // smaller number gives a slower but smoother animation
-
-	if (Speed <= 1) Speed = MAXSPEED;
-
+	frame++;
+	if (frame > K) frame = 1;
 	display();
 
 }
