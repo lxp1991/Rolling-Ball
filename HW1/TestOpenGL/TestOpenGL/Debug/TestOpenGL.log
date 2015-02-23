@@ -1,13 +1,14 @@
-﻿Build started 2015-02-22 12:57:49.
-     1>Project "C:\Users\lxp19_000\OneDrive\文档\GitHub\CS6533-Interactive-Computer-Graphics\HW1\TestOpenGL\TestOpenGL\TestOpenGL.vcxproj" on node 2 (Build target(s)).
+﻿Build started 2015-02-22 19:59:43.
+     1>Project "C:\Users\lxp19_000\OneDrive\文档\GitHub\Rolling-Ball\HW1\TestOpenGL\TestOpenGL\TestOpenGL.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt "Assignment 1.cpp"
          Assignment 1.cpp
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\lxp19_000\OneDrive\文档\GitHub\CS6533-Interactive-Computer-Graphics\HW1\TestOpenGL\Debug\TestOpenGL.exe" /INCREMENTAL /NOLOGO glew32.lib glut32.lib opengl32.lib glu32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\lxp19_000\OneDrive\文档\GitHub\CS6533-Interactive-Computer-Graphics\HW1\TestOpenGL\Debug\TestOpenGL.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\lxp19_000\OneDrive\文档\GitHub\CS6533-Interactive-Computer-Graphics\HW1\TestOpenGL\Debug\TestOpenGL.lib" /MACHINE:X86 "Debug\Assignment 1.obj"
-         TestOpenGL.vcxproj -> C:\Users\lxp19_000\OneDrive\文档\GitHub\CS6533-Interactive-Computer-Graphics\HW1\TestOpenGL\Debug\TestOpenGL.exe
-     1>Done Building Project "C:\Users\lxp19_000\OneDrive\文档\GitHub\CS6533-Interactive-Computer-Graphics\HW1\TestOpenGL\TestOpenGL\TestOpenGL.vcxproj" (Build target(s)).
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\lxp19_000\OneDrive\文档\GitHub\Rolling-Ball\HW1\TestOpenGL\Debug\TestOpenGL.exe" /INCREMENTAL /NOLOGO glew32.lib glut32.lib opengl32.lib glu32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\lxp19_000\OneDrive\文档\GitHub\Rolling-Ball\HW1\TestOpenGL\Debug\TestOpenGL.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\lxp19_000\OneDrive\文档\GitHub\Rolling-Ball\HW1\TestOpenGL\Debug\TestOpenGL.lib" /MACHINE:X86 "Debug\Assignment 1.obj"
+         LINK : C:\Users\lxp19_000\OneDrive\文档\GitHub\Rolling-Ball\HW1\TestOpenGL\Debug\TestOpenGL.exe not found or not built by the last incremental link; performing full link
+         TestOpenGL.vcxproj -> C:\Users\lxp19_000\OneDrive\文档\GitHub\Rolling-Ball\HW1\TestOpenGL\Debug\TestOpenGL.exe
+     1>Done Building Project "C:\Users\lxp19_000\OneDrive\文档\GitHub\Rolling-Ball\HW1\TestOpenGL\TestOpenGL\TestOpenGL.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.87
+Time Elapsed 00:00:01.65
