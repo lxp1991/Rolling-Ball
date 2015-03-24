@@ -53,7 +53,7 @@ GLfloat  zNear = 0.5, zFar = 3.0;
 GLfloat angle = 0.0; // rotation angle in degrees
 //vec4 init_eye(3.0, 2.0, 0.0, 1.0); // initial viewer position
 //vec4 eye = init_eye;               // current viewer position
-
+//vec4 init_eye(0.0, 0.0, 0.0, 1.0);
 vec4 init_eye(7.0, 3.0, -10.0, 1.0); // the VRP required  by the assignment
 vec4 eye = init_eye;
 
@@ -108,8 +108,8 @@ color3 quadrilateral_color[4] = {
 //vertices of the X axis
 point3 X_axis[3] = {
 	point3(0.0, 0.0, 0.0),
-	point3(10.0, 0.0, 0.0),
-	point3(20.0, 0.0, 0.0),
+	point3(1.0, 0.0, 0.0),
+	point3(2.0, 0.0, 0.0),
 };
 //color of the X axis vertices 
 color3 X_axis_color[3] = {
@@ -123,8 +123,8 @@ const int X_axis_NumVertices = 3;
 //vertices of the Y axis
 point3 Y_axis[3] = {
 	point3(0.0, 0.0, 0.0),
-	point3(0.0, 10.0, 0.0),
-	point3(0.0, 20.0, 0.0),
+	point3(0.0, 1.0, 0.0),
+	point3(0.0, 2.0, 0.0),
 };
 //color of the Y axis vertices 
 color3 Y_axis_color[3] = {
@@ -138,8 +138,8 @@ const int Y_axis_NumVertices = 3;
 //vertices of the Z axis
 point3 Z_axis[3] = {
 	point3(0.0, 0.0, 0.0),
-	point3(0.0, 0.0, 10.0),
-	point3(0.0, 0.0, 20.0),
+	point3(0.0, 0.0, 1.0),
+	point3(0.0, 0.0, 2.0),
 };
 //color of the Z axis vertices 
 color3 Z_axis_color[3] = {
@@ -149,10 +149,13 @@ color3 Z_axis_color[3] = {
 };
 const int Z_axis_NumVertices = 3;
 
-color3 sphere_color = color3(1.0, 0.84, 0.0);
-int col;		//record how many polygons it has
-const int sphere_NumVertices = col * 3;		//there are col triangles and each triangle has three points	
 
+// vertices and color of the sphere
+point3 sphereData[128 * 3];
+color3 sphere_color[128 * 3];
+int sphere_NumVertices;		//there are col triangles and each triangle has three points	
+
+int col;		//record how many polygons it has (read from the file)
 // RGBA colors
 color3 vertex_colors[8] = {
     color3( 0.0, 0.0, 0.0),  // black
@@ -169,16 +172,6 @@ int Index = 0; // YJC: This must be a global variable since quad() is called
                //      multiple times and Index should then go up to 36 for
                //      the 36 vertices and colors
 
-
-//----------------------------------------------------------------------------
-// define the triangle class, each triangle has three vertices.
-class triangle {
-public:
-	point3 vertices[3];
-
-};
-
-triangle *tri = new triangle[200];	//this has to be a global variable for later use
 
 //----------------------------------------------------------------------------
 // read the triangle from the text file
@@ -199,30 +192,29 @@ void readFiles() {
 		return;
 	}
 	read >> col;
-	cout << col << endl;
+	
 
+	//read sphere data from the file stream
 	for (int i = 0; i < col; i++) {
 		read >> points;
 		for (int j = 0; j < points; j++) {
-			for (int k = 0; k < 3; k++) {	//every point is defined as (x, y, z)
+			for (int k = 0; k < 3; k++) {
 				read >> temp[k];
 			}
-			tri[i].vertices[j] = { temp[0], temp[1], temp[2] };
-		}	
+			sphereData[count++] = { temp[0], temp[1], temp[2] };
+		}
 	}
-	
-	for (int i = 0; i < col; i++) {
-		for (int j = 0; j < 3; j++)
-			cout << tri[i].vertices[j];
-		cout << endl;
-	}
-	
 
-		
-
-	
+	sphere_NumVertices = col * 3;
 	read.close();
 
+}
+
+//colorsphere(): set every vertex the required golden yellow color(1.0, 0.84, 0.0)
+void colorsphere() {
+	for (int i = 0; i < col * 3; i++) {
+		sphere_color[i] = color3(1.0, 0.84, 0.0);
+	}
 }
 
 // quad(): generate two triangles for each face and assign colors to the vertices
@@ -273,9 +265,10 @@ void init()
 #endif
 
  // Create and initialize a vertex buffer object for cube, to be used in display()
-    glGenBuffers(1, &cube_buffer);
+  /*  glGenBuffers(1, &cube_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, cube_buffer);
 
+	*/
 #if 0
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube_points) + sizeof(cube_colors),
 		 NULL, GL_STATIC_DRAW);
@@ -283,7 +276,7 @@ void init()
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(cube_points), sizeof(cube_colors),
                     cube_colors);
 #endif
-#if 1
+#if 0
     glBufferData(GL_ARRAY_BUFFER, sizeof(point3) * cube_NumVertices + sizeof(color3) * cube_NumVertices,
 		 NULL, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(point3) * cube_NumVertices, cube_points);
@@ -291,7 +284,7 @@ void init()
                     cube_colors);
 #endif
 
-    floor();     
+ /*   floor();     
  // Create and initialize a vertex buffer object for floor, to be used in display()
     glGenBuffers(1, &floor_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, floor_buffer);
@@ -300,7 +293,7 @@ void init()
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(floor_points), floor_points);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(floor_points), sizeof(floor_colors),
                     floor_colors);
-
+					*/
 
 // create and initialize a vertex buffer object for quadrilateral.
 	glGenBuffers(1, &quadrilateral_buffer);
@@ -341,32 +334,24 @@ void init()
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(Z_axis), sizeof(Z_axis_color),
 		Z_axis_color);
 
-// create and initialize a vertex buffer object for Z-axis.
-	glGenBuffers(1, &Z_axis_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, Z_axis_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Z_axis) + sizeof(Z_axis_color),
-		NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Z_axis), Z_axis);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(Z_axis), sizeof(Z_axis_color),
-		Z_axis_color);
 
-
+	colorsphere();
 // create and initialize a vertex buffer object for sphere.
 	glGenBuffers(1, &sphere_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, sphere_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(tri) + sizeof(sphere_color),
+	glBufferData(GL_ARRAY_BUFFER, sizeof(sphereData) + sizeof(sphere_color),
 		NULL, GL_STATIC_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(tri), tri);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(tri), sizeof(sphere_color),
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(sphereData), sphereData);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(sphereData), sizeof(sphere_color),
 		sphere_color);
-
+		
 
  // Load shaders and create a shader program (to be used in display())
     program = InitShader("vshader42.glsl", "fshader42.glsl");
     
     glEnable( GL_DEPTH_TEST );
 	glClearColor(0.529, 0.807, 0.92, 0);
- //   glClearColor( 0.0, 0.0, 0.0, 1.0 ); 
+
     glLineWidth(2.0);
 }
 //----------------------------------------------------------------------------
@@ -425,8 +410,9 @@ void display( void )
 //up = VUP = (0.0, 1.0, 0.0, 0.0)
 	vec4 at(0.0, 0.0, 0.0, 1.0);
 	vec4 up(0.0, 1.0, 0.0, 0.0);
+	
+	
 	mat4  mv = LookAt(eye, at, up);
-
 #if 0 // The following is to verify the correctness of the function NormalMatrix():
       // Commenting out Rotate() and un-commenting mat4WithUpperLeftMat3() 
       // gives the same result.
@@ -434,7 +420,7 @@ void display( void )
             * Rotate(angle, 0.0, 0.0, 2.0); 
          // * mat4WithUpperLeftMat3(NormalMatrix(Rotate(angle, 0.0, 0.0, 2.0), 1));
 #endif
-#if 1 // The following is to verify that Rotate() about (0,2,0) is RotateY():
+#if 0 // The following is to verify that Rotate() about (0,2,0) is RotateY():
       // Commenting out Rotate() and un-commenting RotateY()
       // gives the same result.
     mv = Translate(-1.0, -0.5, 0.0) * mv * Scale (1.4, 1.4, 1.4) 
@@ -449,10 +435,7 @@ void display( void )
                  // * RotateX(angle);
 #endif
 
-
-
-
-
+	/*
     glUniformMatrix4fv(model_view, 1, GL_TRUE, mv); // GL_TRUE: matrix is row-major
     if (cubeFlag == 1) // Filled cube
        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -460,7 +443,7 @@ void display( void )
        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     drawObj(cube_buffer, cube_NumVertices);  // draw the cube
 
-    mv = Translate(-1.0, -1.0, 0.3) * LookAt(eye, at, up) * Scale (1.6, 1.5, 3.3);
+
 //	mv = Translate(-7.0, -3.0, 10.0) * LookAt(eye, at, up) * Scale(1.6, 1.5, 3.3);
     glUniformMatrix4fv(model_view, 1, GL_TRUE, mv); // GL_TRUE: matrix is row-major
     if (floorFlag == 1) // Filled floor
@@ -469,14 +452,19 @@ void display( void )
        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     drawObj(floor_buffer, floor_NumVertices);  // draw the floor
 
+	*/
+//	mv = Translate(-7.0, -3.0, 10.0) * LookAt(eye, at, up) * Scale(1.6, 1.5, 3.3);
+//	mv = Translate(-1.0, -1.0, 0.3) * LookAt(eye, at, up) * Scale(1.6, 1.5, 3.3);
 
 //start to draw the quad
+
+//	mv = Translate(0.0, -2.5, 8.0) * mv;
 	glUniformMatrix4fv(model_view, 1, GL_TRUE, mv);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	drawObj(quadrilateral_buffer, quadrilateral_NumVertices);
 
-	
 //start to draw the X-axis
+//	mv = Translate(0.0, 2.5, -8.0) * mv;
 	glUniformMatrix4fv(model_view, 1, GL_TRUE, mv);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	drawObj(X_axis_buffer, X_axis_NumVertices);
@@ -495,14 +483,17 @@ void display( void )
 
 
 //start to draw the sphere
-	
+//	mv = Translate(-0.3, -0.1, -0.5) * mv;
+	glUniformMatrix4fv(model_view, 1, GL_TRUE, mv);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	drawObj(sphere_buffer, sphere_NumVertices);
 
     glutSwapBuffers();
 }
 //---------------------------------------------------------------------------
 void idle (void)
 {
-  angle += 0.02;
+//  angle += 0.02;
   // angle += 1.0;    //YJC: change this value to adjust the cube rotation speed.
   glutPostRedisplay();
 }
@@ -576,11 +567,9 @@ int main(int argc, char **argv)
     glutKeyboardFunc(keyboard);
 
     init();
-
-
-	
-
     glutMainLoop();
-	delete tri;
+
+	//clean up
+	delete sphereData;
 	return 0;
 }
