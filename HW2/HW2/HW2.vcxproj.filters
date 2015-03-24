@@ -24,9 +24,6 @@
     <ClInclude Include="..\Rotate-Cube-New\mat-yjc-new.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Rotate-Cube-New\vec.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Rotate-Cube-New\InitShader.cpp">

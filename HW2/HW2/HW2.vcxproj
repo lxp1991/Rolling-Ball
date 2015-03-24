@@ -10,6 +10,15 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Rotate-Cube-New\Angel-yjc.h" />
+    <ClInclude Include="..\Rotate-Cube-New\CheckError.h" />
+    <ClInclude Include="..\Rotate-Cube-New\mat-yjc-new.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Rotate-Cube-New\InitShader.cpp" />
+    <ClCompile Include="..\Rotate-Cube-New\rotate-cube-new.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F672245B-5B51-4033-8F06-1FBE07BB44D9}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -79,16 +88,6 @@
       <AdditionalDependencies>glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\Rotate-Cube-New\Angel-yjc.h" />
-    <ClInclude Include="..\Rotate-Cube-New\CheckError.h" />
-    <ClInclude Include="..\Rotate-Cube-New\mat-yjc-new.h" />
-    <ClInclude Include="..\Rotate-Cube-New\vec.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\Rotate-Cube-New\InitShader.cpp" />
-    <ClCompile Include="..\Rotate-Cube-New\rotate-cube-new.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
