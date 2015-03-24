@@ -61,9 +61,9 @@ mat4 accuMatrix	= Angel::identity();
 
 //point3 route[] = { point3(-6.5, 1.0, -4.0), point3(3, 3, 3), point3(-2.0, 0, 3.0) };
 point3 route[] = { point3(3.0, 1.0, 5.0), point3(-2.0, 1.0, -2.5), point3(2.0, 1.0, -4.0) };
-int currentSegment = 0, totalSegments = 3;
+int cur = 0, total = 3;
 GLfloat angle = 0.0, speed = 0.05;		//// rotation angle in degrees
-point3 center = route[currentSegment];
+point3 center = route[cur];
 point3 orientation[3];
 point3 rotationAxis[3];
 
@@ -229,16 +229,16 @@ void init()
 	radius = calculateRadius();
 	
 	//calculate the rolling directions
-	for (int i = 0; i < totalSegments - 1; i++){
+	for (int i = 0; i < total - 1; i++){
 		orientation[i] = calculateDirection(route[i], route[i + 1]);
 	}
 
 	//and the last point to the first one
-	orientation[totalSegments - 1] = calculateDirection(route[totalSegments - 1], route[0]);
+	orientation[total - 1] = calculateDirection(route[total - 1], route[0]);
 
 	//calculate the rotating axis vector
 	vec3 y_axis = { 0, 1, 0 };
-	for (int i = 0; i < totalSegments; i++){
+	for (int i = 0; i < total; i++){
 		rotationAxis[i] = cross(y_axis, orientation[i]);
 	}
 	floor();
@@ -293,7 +293,6 @@ void init()
 
 	// Load shaders and create a shader program (to be used in display())
 	program = InitShader("vshader42.glsl", "fshader42.glsl");
-
 
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -377,13 +376,16 @@ void display(void)
 	drawObj(Z_axis_buffer, Z_axis_NumVertices);
 
 	//start to draw the sphere
-
+	//accuMatrix store the accumulated rotate matrix
+	accuMatrix *= Rotate(speed, rotationAxis[cur].x, rotationAxis[cur].y, rotationAxis[cur].z);
 	mv = Translate(center.x, center.y, center.z)
+	* LookAt(eye, at, up)
+	* accuMatrix;
+	/*mv = Translate(center.x, center.y, center.z)
 		* LookAt(eye, at, up)
-	    * Rotate(angle, rotationAxis[currentSegment].x, rotationAxis[currentSegment].y, rotationAxis[currentSegment].z)
-		;
-	//mv *= accuMatrix;
-	//accuMatrix = mv;
+	    * Rotate(angle, rotationAxis[cur].x, rotationAxis[cur].y, rotationAxis[cur].z)
+		;*/
+	
 	glUniformMatrix4fv(model_view, 1, GL_TRUE, mv);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	drawObj(sphere_buffer, sphere_NumVertices);
@@ -400,16 +402,15 @@ float distanceAt(point3 p1, point3 p2) {
 }
 
 int nextModel() {
-	int next = currentSegment + 1;
-	return (next == totalSegments) ? 0 : next;
+	int next = cur + 1;
+	return (next == total) ? 0 : next;
 }
 bool isTrespass() {
 	int next = nextModel();
-	point3 from = route[currentSegment];
+	point3 from = route[cur];
 	point3 to = route[next];
 	float d1 = distanceAt(center, from);
 	float d2 = distanceAt(to, from);
-
 	return d1 > d2;
 }
 
@@ -425,15 +426,14 @@ void idle(void)
 		angle -= 360.0;
 
 	float distance = (radius * speed * M_PI) / 180;
-	center.x += orientation[currentSegment].x * distance;
-	center.y += orientation[currentSegment].y * distance;
-	center.z += orientation[currentSegment].z * distance;
+	center.x += orientation[cur].x * distance;
+	center.y += orientation[cur].y * distance;
+	center.z += orientation[cur].z * distance;
 	
 	if (isTrespass()) {
-		currentSegment = nextModel();
-		center = route[currentSegment];
+		cur = nextModel();
+		center = route[cur];
 	}
-
 	glutPostRedisplay();
 }
 
