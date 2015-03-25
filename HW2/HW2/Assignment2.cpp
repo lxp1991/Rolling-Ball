@@ -49,23 +49,22 @@ GLuint sphere_buffer;		 //vertex buffer object id for sphere
 // Projection transformation parameters
 GLfloat  fovy = 45.0;  // Field-of-view in Y direction angle (in degrees)
 GLfloat  aspect;       // Viewport aspect ratio
-GLfloat  zNear = 0.5, zFar = 12.0;
+GLfloat  zNear = 0.5, zFar = 15.0;
 bool isMoving = false;		//Control whether the ball is moving or not
 bool isStarted = false;		//indicate whether the moving is started or not
 GLfloat radius;				//record the radius of circle
 vec4 init_eye(7.0, 3.0, -10.0, 1.0); // initial viewer position
 vec4 eye = init_eye;               // current viewer position
-mat4 accuMatrix	= Angel::identity();
+vec4 eye1 = init_eye;
+mat4 accuMatrix = Angel::identity();
 
 
-
-//point3 route[] = { point3(-6.5, 1.0, -4.0), point3(3, 3, 3), point3(-2.0, 0, 3.0) };
 point3 route[] = { point3(3.0, 1.0, 5.0), point3(-2.0, 1.0, -2.5), point3(2.0, 1.0, -4.0) };
 int cur = 0, total = 3;
-GLfloat angle = 0.0, speed = 0.05;		//// rotation angle in degrees
+GLfloat angle = 0.0, speed = 0.1;		//// rotation angle in degrees
 point3 center = route[cur];
 point3 orientation[3];
-point3 rotationAxis[3];
+point3 ax[3];
 
 
 const int floor_NumVertices = 6; //(1 face)*(2 triangles/face)*(3 vertices/triangle)
@@ -140,6 +139,18 @@ const int Z_axis_NumVertices = 3;
 float calculateLength(float x, float y, float z) {
 	return sqrt(x * x + y * y + z * z);
 }
+
+//---------------------------------------------------------------------------
+//calculate the radius of circle read from the text file
+GLfloat calculateRadius() {
+	GLfloat yMax = -100, yMin = 100;
+	for (int i = 0; i < col * 3; i++) {
+		if (yMax < sphereData[i].y) yMax = sphereData[i].y;
+		if (yMin > sphereData[i].y) yMin = sphereData[i].y;
+	}
+	return (yMax - yMin) / 2;
+}
+
 //----------------------------------------------------------------------------
 void readFiles() {
 	ifstream fp;
@@ -153,7 +164,7 @@ void readFiles() {
 	fp.open(filename);
 	if (!fp) {
 		cerr << "Couldn't open " << filename << " !" << endl;
-//		exit(3);
+		//		exit(3);
 	}
 	fp >> col;
 	cout << col << endl;
@@ -174,8 +185,6 @@ void readFiles() {
 	sphere_NumVertices = col * 3;
 	fp.close();
 }
-
-
 
 void colorsphere()
 {
@@ -206,16 +215,8 @@ point3 calculateDirection(point3 from, point3 to) {
 	return normalize(v);
 }
 
-//---------------------------------------------------------------------------
-//calculate the radius of circle read from the text file
-GLfloat calculateRadius() {
-	GLfloat yMax = -100, yMin = 100;
-	for (int i = 0; i < col * 3; i++) {
-		if (yMax < sphereData[i].y) yMax = sphereData[i].y;
-		if (yMin > sphereData[i].y) yMin = sphereData[i].y;
-	}
-	return (yMax - yMin) / 2;
-}
+
+
 
 //----------------------------------------------------------------------------
 // OpenGL initialization
@@ -226,7 +227,7 @@ void init()
 
 	//calculate radius
 	radius = calculateRadius();
-	
+
 	//calculate the rolling directions
 	for (int i = 0; i < total - 1; i++){
 		orientation[i] = calculateDirection(route[i], route[i + 1]);
@@ -238,7 +239,7 @@ void init()
 	//calculate the rotating axis vector
 	vec3 y_axis = { 0, 1, 0 };
 	for (int i = 0; i < total; i++){
-		rotationAxis[i] = cross(y_axis, orientation[i]);
+		ax[i] = cross(y_axis, orientation[i]);
 	}
 	floor();
 
@@ -297,6 +298,22 @@ void init()
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glLineWidth(2.0);
 }
+
+
+float distanceFromTo(point3 p1, point3 p2) {
+	float dx = p1.x - p2.x;
+	float dy = p1.y - p2.y;
+	float dz = p1.z - p2.z;
+	return calculateLength(dx, dy, dz);
+}
+
+//---------------------------------------------------------------------------
+
+int nextIndex() {
+	int next = cur + 1;
+	return (next == total) ? 0 : next;
+}
+
 //----------------------------------------------------------------------------
 // drawObj(buffer, num_vertices):
 //   draw the object that is associated with the vertex buffer object "buffer"
@@ -327,6 +344,15 @@ void drawObj(GLuint buffer, int num_vertices)
 	glDisableVertexAttribArray(vPosition);
 	glDisableVertexAttribArray(vColor);
 }
+
+bool isTrespass() {
+	int next = nextIndex();
+	point3 from = route[cur];
+	point3 to = route[next];
+	float d1 = distanceFromTo(center, from);
+	float d2 = distanceFromTo(to, from);
+	return d1 > d2;
+}
 //----------------------------------------------------------------------------
 void display(void)
 {
@@ -352,10 +378,10 @@ void display(void)
 
 	mat4  mv = LookAt(eye, at, up);
 
-
+	//start to draw the floor
 	glUniformMatrix4fv(model_view, 1, GL_TRUE, mv); // GL_TRUE: matrix is row-major
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	drawObj(floor_buffer, floor_NumVertices);  // draw the floor
+	drawObj(floor_buffer, floor_NumVertices);  
 
 	//start to draw the X-axis
 	glUniformMatrix4fv(model_view, 1, GL_TRUE, mv);
@@ -376,50 +402,25 @@ void display(void)
 
 	//start to draw the sphere
 	//accuMatrix store the accumulated rotate matrix
-	accuMatrix *= Rotate(speed, rotationAxis[cur].x, rotationAxis[cur].y, rotationAxis[cur].z);
-	mv = Translate(center.x, center.y, center.z)
-	* LookAt(eye, at, up)
-	* accuMatrix;
-	/*mv = Translate(center.x, center.y, center.z)
-		* LookAt(eye, at, up)
-	    * Rotate(angle, rotationAxis[cur].x, rotationAxis[cur].y, rotationAxis[cur].z)
-		;*/
-	
+	accuMatrix *= Rotate(speed, ax[cur].x, ax[cur].y, ax[cur].z);
+	mv = LookAt(eye, at, up) * Translate(center.x, center.y, center.z)
+		* accuMatrix;
+/*	mv = LookAt(eye, at, up) 
+		* Translate(center.x, center.y, center.z)
+		* Rotate(angle, ax[cur].x, ax[cur].y, ax[cur].z)
+	;*/
+
 	glUniformMatrix4fv(model_view, 1, GL_TRUE, mv);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	drawObj(sphere_buffer, sphere_NumVertices);
 
 	glutSwapBuffers();
 }
-//---------------------------------------------------------------------------
-
-float distanceAt(point3 p1, point3 p2) {
-	float dx = p1.x - p2.x;
-	float dy = p1.y - p2.y;
-	float dz = p1.z - p2.z;
-	return calculateLength(dx, dy, dz);
-}
-
-int nextIndex() {
-	int next = cur + 1;
-	return (next == total) ? 0 : next;
-}
-bool isTrespass() {
-	int next = nextIndex();
-	point3 from = route[cur];
-	point3 to = route[next];
-	float d1 = distanceAt(center, from);
-	float d2 = distanceAt(to, from);
-	return d1 > d2;
-}
 
 //---------------------------------------------------------------------------
 //animation
 void idle(void)
 {
-//	angle += 0.02;
-	// angle += 1.0;    //YJC: change this value to adjust the cube rotation speed.
-	
 	angle += speed;
 	if (angle > 360.0)
 		angle -= 360.0;
@@ -428,13 +429,15 @@ void idle(void)
 	center.x += orientation[cur].x * distance;
 	center.y += orientation[cur].y * distance;
 	center.z += orientation[cur].z * distance;
-	
+
 	if (isTrespass()) {
 		cur = nextIndex();
 		center = route[cur];
 	}
 	glutPostRedisplay();
 }
+
+
 
 //----------------------------------------------------------------------------
 //keyboard control
@@ -446,7 +449,7 @@ void keyboard(unsigned char key, int x, int y)
 		exit(EXIT_SUCCESS);
 		break;
 
-	//after pressed the b or B button, we can control the moving
+		//after pressed the b or B button, we can control the moving
 	case 'b': isStarted = true; glutIdleFunc(idle); break;
 	case 'B': isStarted = true; glutIdleFunc(idle); break;
 
@@ -456,26 +459,27 @@ void keyboard(unsigned char key, int x, int y)
 	case 'y': eye[1] -= 1.0; break;
 	case 'Z': eye[2] += 1.0; break;
 	case 'z': eye[2] -= 1.0; break;
-
 	}
 	glutPostRedisplay();
 }
 
+//----------------------------------------------------------------------------
+//menu options
 void menu(int id) {
 	switch (id) {
-		case(0) : {
-			eye = init_eye;
-			break;
-		}
-		case(1) : {
-			exit(3);
-			break;
-		}
+	case(0) : {
+		eye = init_eye;
+		break;
+	}
+	case(1) : {
+		exit(3);
+		break;
+	}
 	}
 	glutPostRedisplay();
 }
-
-
+//----------------------------------------------------------------------------
+//add menu
 void Menu() {
 	glutCreateMenu(menu);
 	glutAddMenuEntry("Default View Point", 0);
@@ -506,7 +510,6 @@ int main(int argc, char **argv)
 {
 	int err;
 
-
 	readFiles();
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
@@ -534,7 +537,7 @@ int main(int argc, char **argv)
 	glutMainLoop();
 
 	//clean up
-	delete []sphereData;
-	delete []sphere_color;
+	delete[]sphereData;
+	delete[]sphere_color;
 	return 0;
 }
