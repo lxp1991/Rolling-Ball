@@ -9,28 +9,27 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Rotate-Cube-New\Angel-yjc.h">
-      <Filter>Resource Files</Filter>
+    <ClInclude Include="Angel-yjc.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Rotate-Cube-New\CheckError.h">
-      <Filter>Resource Files</Filter>
+    <ClInclude Include="CheckError.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Rotate-Cube-New\mat-yjc-new.h">
-      <Filter>Resource Files</Filter>
+    <ClInclude Include="mat-yjc-new.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vec.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Rotate-Cube-New\InitShader.cpp">
-      <Filter>Resource Files</Filter>
+    <ClCompile Include="Assignment2.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Rotate-Cube-New\rotate-cube-new.cpp">
-      <Filter>Resource Files</Filter>
+    <ClCompile Include="InitShader.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

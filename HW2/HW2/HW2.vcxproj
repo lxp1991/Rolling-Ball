@@ -11,13 +11,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Rotate-Cube-New\Angel-yjc.h" />
-    <ClInclude Include="..\Rotate-Cube-New\CheckError.h" />
-    <ClInclude Include="..\Rotate-Cube-New\mat-yjc-new.h" />
+    <ClInclude Include="Angel-yjc.h" />
+    <ClInclude Include="CheckError.h" />
+    <ClInclude Include="mat-yjc-new.h" />
+    <ClInclude Include="vec.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Rotate-Cube-New\InitShader.cpp" />
-    <ClCompile Include="..\Rotate-Cube-New\rotate-cube-new.cpp" />
+    <ClCompile Include="Assignment2.cpp" />
+    <ClCompile Include="InitShader.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F672245B-5B51-4033-8F06-1FBE07BB44D9}</ProjectGuid>
