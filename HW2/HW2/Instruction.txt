@@ -1,0 +1,6 @@
+To run this program
+1) put the 'sphere.8' and 'sphere.128' into the same directory as the Assignment.cpp file
+2) compile the project
+3) it will pop out a window and we can enter the filename (sphere.8 or sphere.128) in the Command line
+4) press 'b' or 'B' to start animation
+5) left click to pop menu, right click to pause/resume animation
